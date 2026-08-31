@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Smart — Phenols</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101a15;
+    --panel:#182620;
+    --panel-2:#1f322a;
+    --panel-3:#233a30;
+    --line: rgba(237,231,217,0.12);
+    --line-2: rgba(237,231,217,0.22);
+    --text:#ede7d9;
+    --text-dim:#9db3a4;
+    --amber:#e8a33d;
+    --coral:#e8654a;
+    --mint:#7fd6a6;
+    --bad:#e8654a;
+    --good:#7fd6a6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(127,214,166,0.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(232,163,61,0.08), transparent 55%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  ::selection{background:var(--amber); color:#101a15;}
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit; cursor:pointer;}
+  a{color:var(--mint);}
+
+  /* ===== Header ===== */
+  .hero{
+    padding:34px 20px 18px;
+    max-width:1000px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .hero-top{display:flex; align-items:center; gap:20px; justify-content:space-between; flex-wrap:wrap;}
+  .hero-text{flex:1; min-width:220px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.14em;
+    font-size:11px;
+    color:var(--mint);
+    text-transform:uppercase;
+    margin-bottom:8px;
+    display:block;
+  }
+  .hero h1{font-size:clamp(34px,8vw,52px); font-weight:700; color:var(--text); letter-spacing:-0.01em;}
+  .hero p.tag{color:var(--text-dim); font-size:15px; margin-top:8px; max-width:46ch;}
+
+  .molecule-wrap{width:120px; height:120px; flex-shrink:0;}
+  .molecule-wrap svg{width:100%; height:100%; overflow:visible;}
+  .ring-line{fill:none; stroke:var(--text-dim); stroke-width:2.5;}
+  .ring-core{fill:none; stroke:var(--mint); stroke-width:2; opacity:0.85;}
+  .oh-bond{stroke:var(--amber); stroke-width:2.5;}
+  .oh-label{fill:var(--amber); font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;}
+  @keyframes glow{
+    0%,100%{ opacity:0.55; }
+    50%{ opacity:1; }
+  }
+  .oh-label, .oh-bond{ animation: glow 2.6s ease-in-out infinite; }
+
+  /* ===== Nav ===== */
+  .nav{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding:6px 4px 4px;
+    border-bottom:1px solid var(--line);
+    scrollbar-width:none;
+  }
+  .nav::-webkit-scrollbar{display:none;}
+  .nav button{
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    padding:10px 14px;
+    font-size:13.5px;
+    font-weight:600;
+    white-space:nowrap;
+    border-radius:8px 8px 0 0;
+    position:relative;
+    transition:color .15s ease;
+  }
+  .nav button .num{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--text-dim);
+    opacity:0.55;
+    margin-right:7px;
+    font-size:11px;
+  }
+  .nav button.active{color:var(--text);}
+  .nav button.active .num{color:var(--amber); opacity:1;}
+  .nav button.active::after{
+    content:"";
+    position:absolute;
+    left:8px; right:8px; bottom:-1px;
+    height:2px;
+    background:var(--amber);
+    border-radius:2px;
+  }
+  .nav button:hover{color:var(--text);}
+
+  main{max-width:1000px; margin:0 auto; padding:24px 20px 80px;}
+  .panel-view{display:none; animation:fade .25s ease;}
+  .panel-view.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .section-head{margin-bottom:18px;}
+  .section-head h2{font-size:24px; color:var(--text);}
+  .section-head p{color:var(--text-dim); font-size:13.5px; margin-top:4px;}
+
+  /* ===== Overview ===== */
+  .card-grid{display:grid; grid-template-columns:1fr; gap:12px;}
+  @media(min-width:680px){ .card-grid{grid-template-columns:1fr 1fr;} }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+  }
+  .card h3{font-size:15px; color:var(--amber); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .card h3 .dot{width:7px; height:7px; border-radius:50%; background:var(--amber); display:inline-block; flex-shrink:0;}
+  .card ul{margin:0; padding-left:18px; font-size:13.8px; color:var(--text); display:flex; flex-direction:column; gap:6px;}
+  .card ul li::marker{color:var(--mint);}
+  .card.wide{grid-column:1/-1;}
+  .rule-row{
+    display:flex; justify-content:space-between; gap:10px;
+    padding:8px 0; border-bottom:1px dashed var(--line); font-size:13.3px;
+  }
+  .rule-row:last-child{border-bottom:none;}
+  .rule-row .k{color:var(--text-dim); font-family:'IBM Plex Mono',monospace; font-size:12px; white-space:nowrap;}
+  .pill{
+    display:inline-block; padding:2px 9px; border-radius:20px;
+    background:var(--panel-3); color:var(--mint); font-size:11.5px;
+    font-family:'IBM Plex Mono',monospace; margin-right:5px;
+  }
+  .acidity-scale{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; margin-top:6px;
+  }
+  .acidity-scale .step{
+    background:var(--panel-3); padding:5px 10px; border-radius:8px; color:var(--text);
+  }
+  .acidity-scale .arrow{color:var(--text-dim);}
+
+  /* ===== Diagrams ===== */
+  .diagram-block{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px; margin-bottom:16px;
+  }
+  .diagram-block h3{font-size:16px; color:var(--text); margin-bottom:4px;}
+  .diagram-block .sub{color:var(--text-dim); font-size:12.5px; margin-bottom:14px;}
+  .chip-row{display:flex; gap:7px; overflow-x:auto; padding-bottom:6px; margin-bottom:14px; scrollbar-width:none;}
+  .chip-row::-webkit-scrollbar{display:none;}
+  .chip{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim);
+    padding:7px 12px; border-radius:20px; font-size:12.3px; white-space:nowrap; font-weight:600;
+    transition:.15s;
+  }
+  .chip.active{background:var(--amber); color:#12200f; border-color:var(--amber);}
+  .rx-display{display:flex; gap:18px; flex-wrap:wrap; align-items:center;}
+  .rx-info{flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;}
+  .rx-info .line{font-size:13.2px;}
+  .rx-info .line b{color:var(--mint); font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; display:block; margin-bottom:2px; letter-spacing:.04em;}
+  .rx-svg-wrap{width:150px; height:150px; flex-shrink:0; margin:0 auto;}
+  .rx-svg-wrap svg{width:100%; height:100%;}
+
+  .eas-wrap{display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start;}
+  .eas-svg{width:190px; height:190px; flex-shrink:0; margin:0 auto;}
+  .eas-svg svg{width:100%; height:100%; cursor:pointer;}
+  .eas-note{flex:1; min-width:200px; background:var(--panel-2); border-radius:10px; padding:12px 14px; font-size:13px; min-height:70px; border:1px solid var(--line);}
+  .eas-note b{color:var(--amber);}
+  .vertex-dot{fill:var(--panel-3); stroke:var(--text-dim); stroke-width:1.5; transition:.15s;}
+  .vertex-dot:hover{fill:var(--amber); stroke:var(--amber);}
+  .vertex-dot.picked{fill:var(--coral); stroke:var(--coral);}
+
+  .resonance-row{display:flex; align-items:center; justify-content:center; gap:14px;}
+  .resonance-row .rx-svg-wrap{width:120px; height:120px;}
+  .step-btn{
+    background:var(--panel-3); border:1px solid var(--line-2); color:var(--text);
+    width:34px; height:34px; border-radius:50%; font-size:16px; font-weight:700; flex-shrink:0;
+  }
+  .step-btn:hover{background:var(--amber); color:#12200f;}
+  .res-caption{text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim); margin-top:8px;}
+
+  .stepper-controls{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:12px;}
+  .stepper-controls .count{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-dim);}
+  .step-text{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:13.4px; min-height:60px; margin-top:12px;}
+  .step-text b{color:var(--mint);}
+
+  table.iso-table{width:100%; border-collapse:collapse; font-size:13px; margin-top:6px;}
+  table.iso-table th{
+    text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase;
+    color:var(--text-dim); padding:8px 8px; border-bottom:1px solid var(--line-2); letter-spacing:.04em;
+  }
+  table.iso-table td{padding:9px 8px; border-bottom:1px solid var(--line);}
+  table.iso-table tr.pickable{cursor:pointer;}
+  table.iso-table tr.pickable:hover td{background:rgba(232,163,61,0.06);}
+  table.iso-table tr.active td{background:rgba(127,214,166,0.08); color:var(--text);}
+  table.iso-table td:first-child{font-weight:700; color:var(--amber);}
+
+  /* ===== Mini map ===== */
+  .mm-wrap{display:flex; gap:16px; flex-direction:column;}
+  @media(min-width:720px){ .mm-wrap{flex-direction:row;} }
+  .mm-list{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:8px;
+    display:flex; flex-direction:column; gap:2px;
+    flex:0 0 auto;
+  }
+  @media(min-width:720px){ .mm-list{flex:0 0 280px; max-height:560px; overflow-y:auto;} }
+  .mm-list button{
+    background:transparent; border:none; text-align:left; color:var(--text-dim);
+    padding:11px 12px; border-radius:9px; font-size:13.3px; font-weight:600;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .mm-list button:hover{background:var(--panel-2); color:var(--text);}
+  .mm-list button.active{background:var(--panel-3); color:var(--amber);}
+  .mm-list button .tag{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim); opacity:.7;}
+  .mm-panel{
+    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:22px; min-height:260px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .mm-panel .placeholder{color:var(--text-dim); font-size:13.5px; text-align:center;}
+  .mm-panel h3{color:var(--amber); font-size:19px; margin-bottom:10px;}
+  .mm-panel .body{font-size:14px; color:var(--text);}
+  .mm-panel .body ul{padding-left:18px; margin:8px 0 0;}
+  .mm-panel .body li{margin-bottom:5px;}
+
+  /* ===== Flashcards ===== */
+  .fc-toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px; flex-wrap:wrap;}
+  .fc-toolbar .hint{font-size:12.3px; color:var(--text-dim);}
+  .fc-toolbar button.flipall{
+    background:var(--panel-2); border:1px solid var(--line-2); color:var(--text);
+    padding:8px 14px; border-radius:9px; font-size:12.5px; font-weight:600;
+  }
+  .fc-toolbar button.flipall:hover{border-color:var(--amber); color:var(--amber);}
+  .fc-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px;}
+  @media(min-width:640px){ .fc-grid{grid-template-columns:1fr 1fr 1fr;} }
+  .flip-card{
+    perspective:1000px; height:140px;
+  }
+  .flip-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.2,.8,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:12px;
+    border:1px solid var(--line); padding:12px; display:flex; align-items:center; justify-content:center;
+    text-align:center; font-size:13px; cursor:pointer;
+  }
+  .flip-front{background:var(--panel); color:var(--text); font-weight:600;}
+  .flip-front .idx{position:absolute; top:8px; left:10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-dim);}
+  .flip-back{background:var(--panel-3); color:var(--text); transform:rotateY(180deg); font-size:12.3px; line-height:1.4;}
+
+  /* ===== Quiz ===== */
+  .quiz-bar{
+    position:sticky; top:0; z-index:5; background:rgba(16,26,21,0.92); backdrop-filter:blur(6px);
+    border:1px solid var(--line); border-radius:12px; padding:11px 16px; margin-bottom:16px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .quiz-bar .score{font-family:'IBM Plex Mono',monospace; font-size:13px;}
+  .quiz-bar .score b{color:var(--mint);}
+  .quiz-bar button{
+    background:var(--coral); color:#1a0f0c; border:none; padding:8px 14px; border-radius:9px;
+    font-weight:700; font-size:12.5px;
+  }
+  .q-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px;}
+  .q-card .q-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-dim); margin-bottom:6px;}
+  .q-card .q-text{font-size:14.3px; margin-bottom:12px; color:var(--text);}
+  .q-opts{display:flex; flex-direction:column; gap:7px;}
+  .q-opt{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    text-align:left; padding:10px 12px; border-radius:9px; font-size:13.2px;
+  }
+  .q-opt:hover:not(:disabled){border-color:var(--amber);}
+  .q-opt.correct{background:rgba(127,214,166,0.16); border-color:var(--good); color:var(--good); font-weight:600;}
+  .q-opt.wrong{background:rgba(232,101,74,0.14); border-color:var(--bad); color:var(--bad); font-weight:600;}
+  .q-opt:disabled{cursor:default;}
+
+  footer{
+    max-width:1000px; margin:0 auto; padding:30px 20px 40px; text-align:center;
+    color:var(--text-dim); font-size:12px; border-top:1px solid var(--line); margin-top:20px;
+  }
+  footer .brand{color:var(--amber); font-weight:600;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-top">
+    <div class="hero-text">
+      <span class="eyebrow">Organic Chemistry · Phenols</span>
+      <h1>Study Smart</h1>
+      <p class="tag">The chemistry of Ar–OH — acidity, aromatic substitution, and the named reactions that build phenolic compounds.</p>
+    </div>
+    <div class="molecule-wrap">
+      <svg viewBox="0 0 140 140">
+        <polygon class="ring-line" points="70,18 108,40 108,84 70,106 32,84 32,40"/>
+        <circle class="ring-core" cx="70" cy="62" r="26"/>
+        <line class="oh-bond" x1="70" y1="18" x2="70" y2="2"/>
+        <text class="oh-label" x="70" y="-4" text-anchor="middle">OH</text>
+      </svg>
+    </div>
+  </div>
+
+  <nav class="nav" id="nav">
+    <button class="active" data-view="overview"><span class="num">01</span>Overview</button>
+    <button data-view="diagrams"><span class="num">02</span>Diagrams</button>
+    <button data-view="minimap"><span class="num">03</span>Mini Map</button>
+    <button data-view="flashcards"><span class="num">04</span>Flash Cards</button>
+    <button data-view="quiz"><span class="num">05</span>Quiz Bank</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ 1. OVERVIEW ============ -->
+  <section class="panel-view active" id="view-overview">
+    <div class="section-head">
+      <h2>The essentials</h2>
+      <p>No lecture — just the rules that actually get tested.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3><span class="dot"></span>Definition</h3>
+        <ul>
+          <li>General formula <b class="mono">Ar–OH</b>: an –OH group bonded directly to an <b>aromatic</b> carbon.</li>
+          <li>Alcohols have –OH on an <b>aliphatic</b> carbon — same functional group, very different chemistry.</li>
+          <li>Common members: phenol, cresols, catechol, resorcinol, hydroquinone, salicylic acid.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Physical properties</h3>
+        <ul>
+          <li>Liquids or low-melting solids; high boiling points from H-bonding.</li>
+          <li>Phenol: ~9 g soluble per 100 g water; most other phenols ≈ insoluble.</li>
+          <li>Colorless pure — color usually means oxidation products.</li>
+          <li>Easily oxidized; store/purify carefully.</li>
+          <li><b>o-Nitrophenol</b> is steam-volatile, lower b.p. &amp; lower water-solubility than its isomers.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Acidity order</h3>
+        <div class="acidity-scale">
+          <span class="step">Carboxylic acid</span><span class="arrow">&gt;</span>
+          <span class="step">Phenol</span><span class="arrow">&gt;</span>
+          <span class="step">Water</span><span class="arrow">&gt;</span>
+          <span class="step">Alcohol</span>
+        </div>
+        <ul style="margin-top:10px;">
+          <li>Phenoxide ion is resonance-stabilized over the ring — alkoxide is not.</li>
+          <li>Carboxylate is stabilized by <b>two equivalent</b> resonance oxygens — stronger acid than phenol.</li>
+          <li>Phenol is acidic enough to react with NaOH (alcohols are not).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Directing effect</h3>
+        <ul>
+          <li>–OH is a strong <b>activating</b>, <b>ortho/para-directing</b> group in EAS.</li>
+          <li>Lone pair on O donates into the ring by resonance, raising electron density at o/p.</li>
+          <li>Excess reagent (e.g. conc. HNO₃) → polysubstitution (picric acid).</li>
+        </ul>
+      </div>
+      <div class="card wide">
+        <h3><span class="dot"></span>Key named reactions — one line each</h3>
+        <div class="rule-row"><span class="k">Kolbe</span><span>Sodium phenoxide + CO₂, 125 °C / 4–7 atm → salicylic acid (ortho-COOH).</span></div>
+        <div class="rule-row"><span class="k">Reimer–Tiemann</span><span>Phenol + CHCl₃ + NaOH, 70 °C, via dichlorocarbene → salicylaldehyde (ortho-CHO).</span></div>
+        <div class="rule-row"><span class="k">Fries</span><span>Phenolic ester + AlCl₃, heat → migrates acyl group to ring (o/p-hydroxyketone).</span></div>
+        <div class="rule-row"><span class="k">Claisen</span><span>Allyl phenyl ether, 200 °C, [3,3]-sigmatropic → o-allylphenol.</span></div>
+        <div class="rule-row"><span class="k">Williamson</span><span>ArO⁻ + R–X → Ar–O–R. R–X must be <b>primary or methyl</b>.</span></div>
+        <div class="rule-row"><span class="k">Nitrosation</span><span>Phenol + HONO → 4-nitrosophenol → oxidized [O] → 4-nitrophenol.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. DIAGRAMS ============ -->
+  <section class="panel-view" id="view-diagrams">
+    <div class="section-head">
+      <h2>Diagrams</h2>
+      <p>Tap, click, and step through — every diagram responds.</p>
+    </div>
+
+    <div class="diagram-block">
+      <h3>Named reaction explorer</h3>
+      <div class="sub">Select a reaction to see its reagents, conditions, and product.</div>
+      <div class="chip-row" id="rxChips"></div>
+      <div class="rx-display">
+        <div class="rx-svg-wrap" id="rxSvg"></div>
+        <div class="rx-info" id="rxInfo"></div>
+      </div>
+    </div>
+
+    <div class="diagram-block">
+      <h3>EAS directing map</h3>
+      <div class="sub">Click a ring position to check whether it's favored by –OH.</div>
+      <div class="eas-wrap">
+        <div class="eas-svg" id="easSvg"></div>
+        <div class="eas-note" id="easNote">Click a position on the ring to see whether it's activated by the –OH group.</div>
+      </div>
+    </div>
+
+    <div class="diagram-block">
+      <h3>Phenoxide resonance</h3>
+      <div class="sub">Step through the resonance structures that make phenol more acidic than an alcohol.</div>
+      <div class="resonance-row">
+        <button class="step-btn" id="resPrev">‹</button>
+        <div class="rx-svg-wrap" id="resSvg"></div>
+        <button class="step-btn" id="resNext">›</button>
+      </div>
+      <div class="res-caption" id="resCaption"></div>
+    </div>
+
+    <div class="diagram-block">
+      <h3>Reimer–Tiemann mechanism</h3>
+      <div class="sub">The route from chloroform to a phenolic aldehyde, one step at a time.</div>
+      <div class="stepper-controls">
+        <button class="step-btn" id="rtPrev">‹</button>
+        <span class="count" id="rtCount">1 / 6</span>
+        <button class="step-btn" id="rtNext">›</button>
+      </div>
+      <div class="step-text" id="rtText"></div>
+    </div>
+
+    <div class="diagram-block">
+      <h3>Nitrophenol isomers</h3>
+      <div class="sub">Click a row to see why the ortho isomer behaves so differently.</div>
+      <table class="iso-table" id="isoTable">
+        <thead><tr><th>Isomer</th><th>B.p.</th><th>Water solubility</th><th>Steam-volatile?</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="eas-note" id="isoNote" style="margin-top:10px;">Click a row above.</div>
+    </div>
+  </section>
+
+  <!-- ============ 3. MINI MAP ============ -->
+  <section class="panel-view" id="view-minimap">
+    <div class="section-head">
+      <h2>Mini Map</h2>
+      <p>Click any topic — the details open right here.</p>
+    </div>
+    <div class="mm-wrap">
+      <div class="mm-list" id="mmList"></div>
+      <div class="mm-panel" id="mmPanel">
+        <div class="placeholder">Select a topic from the list to see it explained here.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. FLASH CARDS ============ -->
+  <section class="panel-view" id="view-flashcards">
+    <div class="section-head">
+      <h2>Flash Cards</h2>
+      <p>Tap a card to flip it.</p>
+    </div>
+    <div class="fc-toolbar">
+      <span class="hint" id="fcHint">0 / 0 flipped</span>
+      <button class="flipall" id="fcReset">Flip all back</button>
+    </div>
+    <div class="fc-grid" id="fcGrid"></div>
+  </section>
+
+  <!-- ============ 5. QUIZ BANK ============ -->
+  <section class="panel-view" id="view-quiz">
+    <div class="section-head">
+      <h2>Quiz Bank</h2>
+      <p>30+ questions. Options shuffle every attempt.</p>
+    </div>
+    <div class="quiz-bar">
+      <span class="score">Score: <b id="qScore">0</b> / <span id="qTotal">0</span> &nbsp;·&nbsp; Answered: <span id="qAnswered">0</span></span>
+      <button id="qRestart">Restart quiz</button>
+    </div>
+    <div id="quizList"></div>
+  </section>
+
+</main>
+
+<footer>
+  © <span class="brand">Anmar Taha</span> — All rights reserved.
+</footer>
+
+<script>
+/* ============================================================
+   Shared ring-drawing helper
+   subs: array of 6 strings for positions [top, upper-right, lower-right, bottom, lower-left, upper-left]
+   empty string = plain H (nothing drawn)
+============================================================ */
+function ringSVG(subs, opts){
+  opts = opts || {};
+  var cx = opts.cx || 60, cy = opts.cy || 60, r = opts.r || 34;
+  var color = opts.color || "#e8a33d";
+  var pts = [];
+  var labels = [];
+  for(var i=0;i<6;i++){
+    var ang = (-90 + i*60) * Math.PI/180;
+    var x = cx + r*Math.cos(ang), y = cy + r*Math.sin(ang);
+    pts.push(x.toFixed(1)+","+y.toFixed(1));
+    var lbl = subs[i];
+    if(lbl){
+      var lx = cx + (r+22)*Math.cos(ang), ly = cy + (r+22)*Math.sin(ang);
+      var mx = cx + (r+6)*Math.cos(ang), my = cy + (r+6)*Math.sin(ang);
+      labels.push('<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+mx.toFixed(1)+'" y2="'+my.toFixed(1)+'" stroke="'+color+'" stroke-width="2"/>');
+      labels.push('<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" fill="'+color+'" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">'+lbl+'</text>');
+    }
+  }
+  var svg = '<svg viewBox="0 0 120 120">';
+  svg += '<polygon points="'+pts.join(" ")+'" fill="none" stroke="#9db3a4" stroke-width="2.5"/>';
+  svg += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.55).toFixed(1)+'" fill="none" stroke="#7fd6a6" stroke-width="1.8" opacity="0.8"/>';
+  svg += labels.join("");
+  svg += '</svg>';
+  return svg;
+}
+
+/* ============================================================
+   Navigation
+============================================================ */
+var navButtons = document.querySelectorAll('#nav button');
+navButtons.forEach(function(btn){
+  btn.addEventListener('click', function(){
+    navButtons.forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.panel-view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* ============================================================
+   2a. Reaction explorer
+============================================================ */
+var reactions = [
+  { id:'diazo', name:'Diazonium hydrolysis', reagents:'Benzenediazonium salt', conditions:'H₂O, H⁺, warm', product:'Phenol', note:'N₂⁺ is displaced by water; nitrogen gas is lost.', subs:['OH','','','','',''] },
+  { id:'fusion', name:'Alkali fusion', reagents:'Sodium benzenesulfonate', conditions:'NaOH / H₂O, 300 °C, then H⁺', product:'Phenol', note:'Sulfonate is displaced by hydroxide at high temperature.', subs:['OH','','','','',''] },
+  { id:'acid', name:'Phenol as an acid', reagents:'Na (metal) or NaOH', conditions:'room temperature', product:'Sodium phenolate', note:'Phenol is acidic enough to react with NaOH — alcohols are not.', subs:['O⁻Na⁺','','','','',''] },
+  { id:'ester', name:'Esterification', reagents:'Acid, acid chloride, or anhydride', conditions:'H⁺ catalyst', product:'Aryl ester', note:'e.g. salicylic acid + acetic anhydride → aspirin (acetylsalicylic acid).', subs:['OOC-CH3','','','','',''] },
+  { id:'fries', name:'Fries rearrangement', reagents:'Phenyl ester', conditions:'AlCl₃, heat', product:'o- and p-hydroxyaryl ketone', note:'Acyl group migrates from O to the ring; ortho isomer is steam-volatile, para is not.', subs:['OH','COR','','','',''] },
+  { id:'williamson', name:'Williamson ether synthesis', reagents:'ArO⁻Na⁺ + R–X', conditions:'alkaline solution', product:'Aryl alkyl ether', note:'Phenoxide is the nucleophile. R–X must be primary or methyl.', subs:['OR','','','','',''] },
+  { id:'nitration', name:'Nitration (EAS)', reagents:'dil. or conc. HNO₃', conditions:'H₂SO₄', product:'o-/p-Nitrophenol (or 2,4,6-trinitrophenol)', note:'–OH activates strongly; excess conc. acid over-nitrates to picric acid.', subs:['OH','NO2','','NO2','',''] },
+  { id:'halogen', name:'Halogenation (EAS)', reagents:'Br₂', conditions:'CCl₄', product:'2-Bromophenol + 4-bromophenol', note:'No catalyst needed — the ring is already activated.', subs:['OH','Br','','Br','',''] },
+  { id:'fc-alk', name:'Friedel–Crafts alkylation', reagents:'tert-Butyl chloride', conditions:'AlCl₃', product:'4-(tert-Butyl)phenol', note:'Bulky electrophile favors the less-hindered para position.', subs:['OH','','','C(CH3)3','',''] },
+  { id:'fc-acyl', name:'Friedel–Crafts acylation', reagents:'Butanoyl chloride', conditions:'AlCl₃', product:'1-(4-Hydroxyphenyl)butan-1-one', note:'Not the same as esterification — the acyl group bonds to carbon, not oxygen.', subs:['OH','','','COC3H7','',''] },
+  { id:'claisen', name:'Claisen rearrangement', reagents:'Allyl phenyl ether', conditions:'200 °C, intramolecular', product:'o-Allylphenol', note:'[3,3]-sigmatropic shift; keto–enol tautomerization restores aromaticity.', subs:['OH','CH2CHCH2','','','',''] },
+  { id:'nitroso', name:'Nitrosation', reagents:'HONO', conditions:'then [O] oxidation', product:'4-Nitrosophenol → 4-nitrophenol', note:'Phenols are reactive enough to be attacked by the weak NO⁺ electrophile.', subs:['OH','','','NO','',''] },
+  { id:'kolbe', name:'Kolbe reaction', reagents:'Sodium phenoxide + CO₂', conditions:'125 °C, 4–7 atm, then H⁺', product:'Salicylic acid', note:'COOH is substituted onto the ring ortho to O.', subs:['OH','COOH','','','',''] },
+  { id:'rt', name:'Reimer–Tiemann', reagents:'CHCl₃ + aq. NaOH/KOH', conditions:'70 °C, then H⁺', product:'Salicylaldehyde', note:'Dichlorocarbene is the reactive intermediate; CHO lands ortho to OH.', subs:['OH','CHO','','','',''] }
+];
+var rxActiveId = 'diazo';
+function renderRxChips(){
+  var wrap = document.getElementById('rxChips');
+  wrap.innerHTML = '';
+  reactions.forEach(function(r){
+    var c = document.createElement('button');
+    c.className = 'chip' + (r.id===rxActiveId ? ' active':'');
+    c.textContent = r.name;
+    c.addEventListener('click', function(){ rxActiveId = r.id; renderRxChips(); renderRxDetail(); });
+    wrap.appendChild(c);
+  });
+}
+function renderRxDetail(){
+  var r = reactions.find(function(x){ return x.id===rxActiveId; });
+  document.getElementById('rxSvg').innerHTML = ringSVG(r.subs, {color:'#e8a33d'});
+  document.getElementById('rxInfo').innerHTML =
+    '<div class="line"><b>Reagents</b>'+r.reagents+'</div>'+
+    '<div class="line"><b>Conditions</b>'+r.conditions+'</div>'+
+    '<div class="line"><b>Product</b>'+r.product+'</div>'+
+    '<div class="line"><b>Note</b>'+r.note+'</div>';
+}
+renderRxChips(); renderRxDetail();
+
+/* ============================================================
+   2b. EAS directing map
+============================================================ */
+var easInfo = {
+  0:{ label:'ipso (C–OH)', text:'This carbon already carries the –OH group — substitution happens at the other ring positions.' },
+  1:{ label:'ortho', text:'<b>Favored.</b> Resonance places extra electron density here, directly from the O lone pair.' },
+  2:{ label:'meta', text:'<b>Disfavored.</b> No resonance structure puts negative charge at a meta carbon.' },
+  3:{ label:'para', text:'<b>Favored.</b> Resonance places extra electron density here too — often the major product with bulky electrophiles.' },
+  4:{ label:'meta', text:'<b>Disfavored.</b> Same reasoning as the other meta position — no resonance stabilization.' },
+  5:{ label:'ortho', text:'<b>Favored.</b> Equivalent to the other ortho position by symmetry.' }
+};
+function renderEas(){
+  var cx=95, cy=95, r=55;
+  var pts=[], dots=[];
+  for(var i=0;i<6;i++){
+    var ang=(-90+i*60)*Math.PI/180;
+    var x=cx+r*Math.cos(ang), y=cy+r*Math.sin(ang);
+    pts.push(x.toFixed(1)+","+y.toFixed(1));
+    if(i===0){
+      dots.push('<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+(y-18).toFixed(1)+'" stroke="#e8a33d" stroke-width="2.5"/>');
+      dots.push('<text x="'+x.toFixed(1)+'" y="'+(y-24).toFixed(1)+'" text-anchor="middle" fill="#e8a33d" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700">OH</text>');
+    } else {
+      dots.push('<circle class="vertex-dot" data-pos="'+i+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="9"/>');
+    }
+  }
+  var svg = '<svg viewBox="0 0 190 190">';
+  svg += '<polygon points="'+pts.join(" ")+'" fill="none" stroke="#9db3a4" stroke-width="2.5"/>';
+  svg += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.55).toFixed(1)+'" fill="none" stroke="#7fd6a6" stroke-width="1.8" opacity="0.8"/>';
+  svg += dots.join("");
+  svg += '</svg>';
+  document.getElementById('easSvg').innerHTML = svg;
+  document.querySelectorAll('.vertex-dot').forEach(function(dot){
+    dot.addEventListener('click', function(){
+      document.querySelectorAll('.vertex-dot').forEach(function(d){ d.classList.remove('picked'); });
+      dot.classList.add('picked');
+      var info = easInfo[dot.dataset.pos];
+      document.getElementById('easNote').innerHTML = '<b>'+info.label+'</b> — '+info.text;
+    });
+  });
+}
+renderEas();
+
+/* ============================================================
+   2c. Resonance stepper
+============================================================ */
+var resSteps = [
+  { subs:['O⁻','','','','',''], caption:'Structure 1 — negative charge on oxygen (phenoxide).' },
+  { subs:['O','δ⁻','','','',''], caption:'Structure 2 — charge delocalized onto the ortho carbon.' },
+  { subs:['O','','','δ⁻','',''], caption:'Structure 3 — charge delocalized onto the para carbon.' },
+  { subs:['O','','','','','δ⁻'], caption:'Structure 4 — charge delocalized onto the other ortho carbon.' }
+];
+var resIdx = 0;
+function renderRes(){
+  var s = resSteps[resIdx];
+  document.getElementById('resSvg').innerHTML = ringSVG(s.subs, {color:'#7fd6a6'});
+  document.getElementById('resCaption').textContent = s.caption + '  (' + (resIdx+1) + ' / ' + resSteps.length + ')';
+}
+document.getElementById('resPrev').addEventListener('click', function(){ resIdx = (resIdx-1+resSteps.length)%resSteps.length; renderRes(); });
+document.getElementById('resNext').addEventListener('click', function(){ resIdx = (resIdx+1)%resSteps.length; renderRes(); });
+renderRes();
+
+/* ============================================================
+   2d. Reimer–Tiemann stepper
+============================================================ */
+var rtSteps = [
+  'CHCl₃ is deprotonated by strong base (KOH/NaOH) to give the trichloromethyl carbanion, :CCl₃⁻.',
+  '<b>α-elimination:</b> the carbanion ejects a chloride ion, generating the reactive electrophile <b>dichlorocarbene, :CCl₂</b>.',
+  'Meanwhile, phenol is deprotonated by base to the much more nucleophilic <b>phenoxide ion</b>.',
+  'The phenoxide ring attacks dichlorocarbene at the <b>ortho</b> carbon, giving a non-aromatic carbanion intermediate bearing a –CHCl₂ group.',
+  'The ring re-aromatizes, restoring the phenoxide with an ortho <b>–CHCl₂</b> substituent (a gem-dichloride).',
+  'Hydrolysis by hydroxide removes both chlorines in turn; acidic work-up (H⁺) gives the final product: <b>salicylaldehyde</b> (2-hydroxybenzaldehyde).'
+];
+var rtIdx = 0;
+function renderRt(){
+  document.getElementById('rtText').innerHTML = rtSteps[rtIdx];
+  document.getElementById('rtCount').textContent = (rtIdx+1)+' / '+rtSteps.length;
+}
+document.getElementById('rtPrev').addEventListener('click', function(){ rtIdx=(rtIdx-1+rtSteps.length)%rtSteps.length; renderRt(); });
+document.getElementById('rtNext').addEventListener('click', function(){ rtIdx=(rtIdx+1)%rtSteps.length; renderRt(); });
+renderRt();
+
+/* ============================================================
+   2e. Isomer table
+============================================================ */
+var isoData = [
+  { name:'ortho-Nitrophenol', bp:'Lower', sol:'Lower', steam:'Yes', why:'Intramolecular H-bonding between –OH and the adjacent –NO₂ "chelates" the molecule, so it cannot H-bond intermolecularly — lower b.p., lower solubility, and steam-volatile.' },
+  { name:'meta-Nitrophenol', bp:'Higher', sol:'Higher', steam:'No', why:'No intramolecular H-bond is possible from this position, so normal intermolecular H-bonding with water and other phenol molecules dominates.' },
+  { name:'para-Nitrophenol', bp:'Higher', sol:'Higher', steam:'No', why:'Same reasoning as meta — only intermolecular association is possible, raising b.p. and solubility, and preventing steam volatility.' }
+];
+function renderIso(){
+  var tbody = document.querySelector('#isoTable tbody');
+  tbody.innerHTML = '';
+  isoData.forEach(function(row,i){
+    var tr = document.createElement('tr');
+    tr.className = 'pickable';
+    tr.innerHTML = '<td>'+row.name+'</td><td>'+row.bp+'</td><td>'+row.sol+'</td><td>'+row.steam+'</td>';
+    tr.addEventListener('click', function(){
+      document.querySelectorAll('#isoTable tr').forEach(function(r){ r.classList.remove('active'); });
+      tr.classList.add('active');
+      document.getElementById('isoNote').innerHTML = '<b>'+row.name+':</b> '+row.why;
+    });
+    tbody.appendChild(tr);
+  });
+}
+renderIso();
+
+/* ============================================================
+   3. Mini map
+============================================================ */
+var miniMap = [
+  { title:'Definition of a phenol', tag:'basics', body:'A phenol has an –OH group attached directly to an aromatic ring carbon (Ar–OH). This differs from an alcohol, where –OH sits on an sp³ (aliphatic) carbon — and that single difference changes almost all of the chemistry.' },
+  { title:'Hydrogen bonding & boiling point', tag:'properties', body:'The O–H bond lets phenols hydrogen-bond to each other and to water. This raises boiling points well above similar-sized non-polar molecules, and gives phenol itself modest water solubility (~9 g / 100 g water).' },
+  { title:'Solubility', tag:'properties', body:'Phenol dissolves somewhat in water via H-bonding; most substituted phenols are far less soluble because the added substituent is usually non-polar and increases the hydrophobic bulk of the molecule.' },
+  { title:'Color & oxidation', tag:'properties', body:'Pure phenols are colorless. Because they oxidize easily in air, impure or aged samples often develop color from oxidation products — a useful purity clue in the lab.' },
+  { title:'Why phenol is more acidic than an alcohol', tag:'acidity', body:'Deprotonating phenol gives the phenoxide ion, whose negative charge is delocalized onto the ortho and para ring carbons by resonance. An alkoxide from an alcohol has no such delocalization — its charge stays fully on oxygen, making it a much stronger (less stable) base.' },
+  { title:'Why a carboxylic acid beats phenol', tag:'acidity', body:'A carboxylate ion spreads its negative charge over two equivalent oxygens (true resonance degeneracy), which is more stabilizing than spreading charge onto ring carbons. That makes carboxylic acids more acidic than phenols.' },
+  { title:'Ether formation — Williamson synthesis', tag:'reactions', body:'ArO⁻Na⁺ + R–X → Ar–O–R + NaX. Because phenol is more acidic than water, the phenoxide can be generated in situ with NaOH. Constraint: R–X must be primary or methyl, since the phenoxide acts as a nucleophile in an Sₙ2-type step.' },
+  { title:'Ester formation', tag:'reactions', body:'Phenols form esters with acids, acid chlorides, or anhydrides (acid-catalyzed for direct acids). Example: salicylic acid + acetic anhydride → acetylsalicylic acid (aspirin).' },
+  { title:'Fries rearrangement', tag:'reactions', body:'Heating a phenolic ester with AlCl₃ migrates the acyl group from oxygen onto the ring (ortho or para), giving a hydroxyaryl ketone. Used instead of direct Friedel–Crafts acylation of the free phenol.' },
+  { title:'EAS — nitration', tag:'reactions', body:'Dilute HNO₃/H₂SO₄ gives a mixture of 2- and 4-nitrophenol. Concentrated HNO₃ drives polynitration all the way to 2,4,6-trinitrophenol (picric acid).' },
+  { title:'EAS — halogenation', tag:'reactions', body:'Br₂ in CCl₄ brominates phenol readily (no Lewis-acid catalyst needed, unlike benzene) to give a mixture of 2-bromophenol and 4-bromophenol.' },
+  { title:'Friedel–Crafts alkylation', tag:'reactions', body:'Phenol + an alkyl halide (e.g. tert-butyl chloride) with AlCl₃ installs an alkyl group, typically at the less hindered para position for bulky electrophiles.' },
+  { title:'Friedel–Crafts acylation', tag:'reactions', body:'Phenol + an acid chloride with AlCl₃ bonds the acyl group to a ring carbon (C-acylation) — not to be confused with simple esterification, which bonds the acyl group to the phenolic oxygen (O-acylation).' },
+  { title:'Claisen rearrangement', tag:'reactions', body:'Heating allyl phenyl ether to ~200 °C triggers an intramolecular [3,3]-sigmatropic shift: a new C–C bond forms between the allyl terminus and the ortho ring carbon as the C–O bond breaks. Keto–enol tautomerization then restores aromaticity, giving o-allylphenol.' },
+  { title:'Nitrosation', tag:'reactions', body:'Phenols are reactive enough to be attacked by the weakly electrophilic nitrosonium ion (from HONO), giving 4-nitrosophenol. Oxidation ([O], e.g. by nitric acid) converts the –NO group to –NO₂, giving 4-nitrophenol.' },
+  { title:'Kolbe reaction', tag:'named', body:'Sodium phenoxide + CO₂ at 125 °C and 4–7 atm, then acidic work-up, substitutes a –COOH group onto the ring (ortho) — the industrial route to salicylic acid.' },
+  { title:'Reimer–Tiemann reaction', tag:'named', body:'Phenol + chloroform + aqueous NaOH/KOH at 70 °C generates dichlorocarbene, which reacts at the ortho position; acidic work-up gives salicylaldehyde. This installs a –CHO group generally ortho to the –OH.' }
+];
+function renderMiniMap(){
+  var list = document.getElementById('mmList');
+  list.innerHTML = '';
+  miniMap.forEach(function(item, idx){
+    var b = document.createElement('button');
+    b.innerHTML = '<span>'+item.title+'</span><span class="tag">'+item.tag+'</span>';
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#mmList button').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      document.getElementById('mmPanel').innerHTML = '<h3>'+item.title+'</h3><div class="body">'+item.body+'</div>';
+    });
+    list.appendChild(b);
+  });
+}
+renderMiniMap();
+
+/* ============================================================
+   4. Flash cards
+============================================================ */
+var flashcards = [
+  { f:'Phenol general formula', b:'Ar–OH — an –OH group bonded to an aromatic ring carbon.' },
+  { f:'Why is phenol more acidic than an alcohol?', b:'The phenoxide ion is resonance-stabilized over the ring; the alkoxide ion is not.' },
+  { f:'Acidity order', b:'Carboxylic acid > phenol > water > alcohol.' },
+  { f:'How does –OH direct in EAS?', b:'Strong activator; ortho/para-director (lone pair donates into the ring by resonance).' },
+  { f:'Williamson synthesis constraint', b:'The alkyl halide R–X must be primary or methyl (Sₙ2 mechanism).' },
+  { f:'Kolbe reaction: reagents & product', b:'Sodium phenoxide + CO₂, 125 °C, 4–7 atm, then H⁺ → salicylic acid.' },
+  { f:'Reimer–Tiemann reaction: key intermediate', b:'Dichlorocarbene (:CCl₂), generated from CHCl₃ + strong base.' },
+  { f:'Reimer–Tiemann product', b:'Salicylaldehyde (2-hydroxybenzaldehyde) — CHO lands ortho to OH.' },
+  { f:'Fries rearrangement', b:'Heating a phenyl ester with AlCl₃ migrates the acyl group onto the ring (ortho/para), forming a hydroxyaryl ketone.' },
+  { f:'Claisen rearrangement conditions & product', b:'Allyl phenyl ether heated to 200 °C → o-allylphenol, via [3,3]-sigmatropic shift + keto–enol tautomerization.' },
+  { f:'Nitrosation sequence', b:'Phenol + HONO → 4-nitrosophenol → [O] oxidation → 4-nitrophenol.' },
+  { f:'o-Nitrophenol vs its isomers', b:'Lower b.p., lower water solubility, and uniquely steam-volatile — due to intramolecular H-bonding.' },
+  { f:'Esterification of phenols', b:'Phenol + acid / acid chloride / anhydride (H⁺ catalyzed) → aryl ester, e.g. aspirin from salicylic acid + acetic anhydride.' },
+  { f:'Friedel–Crafts acylation vs esterification', b:'Acylation bonds the acyl group to ring carbon (C-acylation); esterification bonds it to the phenolic oxygen (O-acylation).' },
+  { f:'Two industrial syntheses of phenol', b:'1) Diazonium salt + H₂O/H⁺.  2) Alkali fusion of sodium benzenesulfonate (NaOH, 300 °C) then H⁺.' },
+  { f:'Why are phenols often colored?', b:'They oxidize easily; unless carefully purified, oxidation products impart color (pure phenols are colorless).' },
+  { f:'Picric acid', b:'2,4,6-Trinitrophenol — from polynitration of phenol with concentrated HNO₃.' },
+  { f:'Catechol / resorcinol / hydroquinone', b:'The three dihydroxybenzene isomers: ortho, meta, and para respectively.' },
+  { f:'Salicylic acid structure', b:'2-Hydroxybenzoic acid — the Kolbe reaction product, also the Reimer–Tiemann product after oxidation of salicylaldehyde.' },
+  { f:'Why is phenol soluble in water at all (unlike most phenols)?', b:'Its small size lets it hydrogen-bond effectively with water despite the hydrophobic ring.' }
+];
+function renderFlashcards(){
+  var grid = document.getElementById('fcGrid');
+  grid.innerHTML = '';
+  flashcards.forEach(function(card, i){
+    var wrap = document.createElement('div');
+    wrap.className = 'flip-card';
+    wrap.innerHTML =
+      '<div class="flip-inner">'+
+        '<div class="flip-face flip-front"><span class="idx">'+(i+1)+'</span>'+card.f+'</div>'+
+        '<div class="flip-face flip-back">'+card.b+'</div>'+
+      '</div>';
+    wrap.addEventListener('click', function(){
+      wrap.classList.toggle('flipped');
+      updateFcHint();
+    });
+    grid.appendChild(wrap);
+  });
+  updateFcHint();
+}
+function updateFcHint(){
+  var total = document.querySelectorAll('.flip-card').length;
+  var flipped = document.querySelectorAll('.flip-card.flipped').length;
+  document.getElementById('fcHint').textContent = flipped+' / '+total+' flipped';
+}
+document.getElementById('fcReset').addEventListener('click', function(){
+  document.querySelectorAll('.flip-card').forEach(function(c){ c.classList.remove('flipped'); });
+  updateFcHint();
+});
+renderFlashcards();
+
+/* ============================================================
+   5. Quiz bank (30+ MCQ, shuffled options)
+============================================================ */
+var quizData = [
+  { q:'What is the general formula of a phenol?', choices:['R–OH','Ar–OH','Ar–O–R','Ar–COOH'], correct:1 },
+  { q:'Where is the –OH group attached in an alcohol, as opposed to a phenol?', choices:['An aromatic carbon','A carbonyl carbon','An aliphatic (sp³) carbon','A nitrogen atom'], correct:2 },
+  { q:'Which is the correct acid-strength order?', choices:['Alcohol > phenol > carboxylic acid','Phenol > carboxylic acid > alcohol','Carboxylic acid > phenol > alcohol','Alcohol > carboxylic acid > phenol'], correct:2 },
+  { q:'Why is phenol more acidic than an alcohol?', choices:['Phenol has more carbons','The phenoxide ion is resonance-stabilized by the ring','Alcohols are basic, not acidic','Phenol has a lower molecular weight'], correct:1 },
+  { q:'Why is a carboxylic acid more acidic than phenol?', choices:['The carboxylate spreads charge over two equivalent oxygens','Carboxylic acids have no resonance','Phenoxide is more stable than carboxylate','Carboxylic acids are aromatic'], correct:0 },
+  { q:'The –OH group in EAS is a(n):', choices:['Deactivating, meta-director','Activating, ortho/para-director','Deactivating, ortho/para-director','Activating, meta-director'], correct:1 },
+  { q:'What does excess concentrated HNO₃ do to phenol?', choices:['No reaction occurs','Produces only meta-nitrophenol','Causes polynitration to 2,4,6-trinitrophenol (picric acid)','Reduces phenol to benzene'], correct:2 },
+  { q:'Which reagent brominates phenol without a Lewis-acid catalyst?', choices:['Br₂ / CCl₄','Br₂ / AlBr₃ only','NBS / peroxide only','Br₂ / FeBr₃ required'], correct:0 },
+  { q:'In the Williamson ether synthesis with a phenoxide, R–X must be:', choices:['Tertiary','Any alkyl halide','Primary or methyl','Aryl halide'], correct:2 },
+  { q:'Sodium phenoxide + CO₂ (125 °C, 4–7 atm), then H⁺, is which named reaction?', choices:['Reimer–Tiemann','Fries rearrangement','Kolbe reaction','Claisen rearrangement'], correct:2 },
+  { q:'The Kolbe reaction converts phenol into:', choices:['Salicylaldehyde','Salicylic acid','Picric acid','Aspirin'], correct:1 },
+  { q:'The Reimer–Tiemann reaction uses which reagent to generate the key electrophile?', choices:['CHCl₃ + aqueous NaOH/KOH','Br₂ / CCl₄','CO₂ under pressure','HONO'], correct:0 },
+  { q:'What is the reactive intermediate in the Reimer–Tiemann reaction?', choices:['A phenoxide radical','Dichlorocarbene (:CCl₂)','Nitrosonium ion','Benzyne'], correct:1 },
+  { q:'The Reimer–Tiemann reaction installs which group, generally ortho to OH?', choices:['–COOH','–CHO','–NO₂','–Br'], correct:1 },
+  { q:'The product of the Reimer–Tiemann reaction on phenol is called:', choices:['Salicylic acid','Picric acid','Salicylaldehyde','o-Cresol'], correct:2 },
+  { q:'The Fries rearrangement is performed on:', choices:['A free phenol directly','A phenolic ester, with AlCl₃ and heat','A phenoxide with CO₂','An allyl phenyl ether'], correct:1 },
+  { q:'The Fries rearrangement moves the acyl group from:', choices:['Carbon to oxygen','Oxygen to nitrogen','Oxygen to the ring (ortho/para)','Nitrogen to oxygen'], correct:2 },
+  { q:'Which Fries product is volatile in steam?', choices:['The para-hydroxyphenyl ketone','The ortho-hydroxyphenyl ketone','Neither isomer','Both isomers equally'], correct:1 },
+  { q:'Allyl phenyl ether heated to about 200 °C undergoes:', choices:['Kolbe reaction','Claisen rearrangement','Fries rearrangement','Nitrosation'], correct:1 },
+  { q:'The Claisen rearrangement is best classified as a:', choices:['[3,3]-sigmatropic shift','Free-radical chain reaction','Nucleophilic acyl substitution','Electrophilic addition'], correct:0 },
+  { q:'The direct product of the Claisen rearrangement, before tautomerization, is:', choices:['An aromatic ether','A stable phenol','An unstable cyclohexadienone intermediate','Salicylaldehyde'], correct:2 },
+  { q:'The final product of the Claisen rearrangement of allyl phenyl ether is:', choices:['p-Allylphenol','o-Allylphenol','Allylbenzene','Cinnamaldehyde'], correct:1 },
+  { q:'Nitrosation of phenol (HONO) first gives:', choices:['4-Nitrophenol directly','4-Nitrosophenol','Picric acid','Salicylaldehyde'], correct:1 },
+  { q:'4-Nitrosophenol is converted to 4-nitrophenol by:', choices:['Reduction with H₂','Oxidation, [O]','Hydrolysis','Heating alone'], correct:1 },
+  { q:'Phenols can react with the weak NO⁺ electrophile because:', choices:['They are unusually unreactive','They are among the few compounds reactive enough for this weak electrophile','NO⁺ only reacts with alkenes','Phenols are basic'], correct:1 },
+  { q:'Why does o-nitrophenol have a lower boiling point than its meta and para isomers?', choices:['It has a different molecular formula','Intramolecular H-bonding prevents intermolecular association', 'It lacks a nitro group','It is not aromatic'], correct:1 },
+  { q:'Which nitrophenol isomer is readily steam-distillable?', choices:['meta-Nitrophenol','para-Nitrophenol','ortho-Nitrophenol','All three equally'], correct:2 },
+  { q:'Why is o-nitrophenol less water-soluble than its isomers?', choices:['Its OH is tied up in an intramolecular H-bond, unavailable for water', 'It has an extra methyl group','It is ionic','It has no oxygen atoms'], correct:0 },
+  { q:'Phenol reacting with sodium metal or NaOH produces:', choices:['Benzene','Sodium phenolate (phenoxide)','Cyclohexanol','Phenyl chloride'], correct:1 },
+  { q:'Phenols form esters using:', choices:['Only Grignard reagents','Acids, acid chlorides, or anhydrides','Only alkyl halides','Only reduction'], correct:1 },
+  { q:'Aspirin (acetylsalicylic acid) is formed from salicylic acid and:', choices:['Acetic anhydride','Butanoyl chloride','Chloroform','Sodium hydroxide'], correct:0 },
+  { q:'Which is a correct industrial synthesis of phenol?', choices:['Reduction of benzaldehyde','Alkali fusion of sodium benzenesulfonate','Ozonolysis of benzene','Hydrogenation of cyclohexanone'], correct:1 },
+  { q:'Hydrolysis of a benzenediazonium salt with H₂O/H⁺ gives:', choices:['Aniline','Phenol','Benzene','Nitrobenzene'], correct:1 },
+  { q:'Why are many phenol samples colored even though pure phenols are colorless?', choices:['All phenols are inherently colored','Oxidation products form on exposure to air','They absorb visible light by nature','They are always contaminated with dye'], correct:1 },
+  { q:'Phenol’s modest water solubility (~9 g/100 g) is mainly due to:', choices:['Ionic bonding','Hydrogen bonding with water','Its nonpolar ring','Van der Waals forces only'], correct:1 },
+  { q:'Friedel–Crafts acylation of phenol differs from esterification because it bonds the acyl group to:', choices:['The phenolic oxygen','A ring carbon','A nitrogen','Another acyl group'], correct:1 },
+  { q:'Catechol, resorcinol, and hydroquinone are:', choices:['Different names for the same compound','ortho-, meta-, and para-dihydroxybenzene respectively','Nitro-substituted phenols','Phenol esters'], correct:1 },
+  { q:'What makes phenols generally have higher boiling points than similarly sized non-polar compounds?', choices:['Hydrogen bonding','Ionic character','High molecular weight only','Aromaticity alone'], correct:0 },
+  { q:'In the phenoxide resonance structures, negative charge can appear at:', choices:['Only the oxygen','Oxygen, and the ortho/para ring carbons','Only the meta carbons','Every ring carbon equally'], correct:1 },
+  { q:'A bulky electrophile in Friedel–Crafts alkylation of phenol tends to favor which position?', choices:['Ipso','Meta','Ortho, exclusively','Para (less hindered)'], correct:3 }
+];
+document.getElementById('qTotal').textContent = quizData.length;
+
+function shuffleArr(arr){
+  for(var i=arr.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+  }
+  return arr;
+}
+
+var quizScore = 0, quizAnswered = 0;
+function renderQuiz(){
+  quizScore = 0; quizAnswered = 0;
+  document.getElementById('qScore').textContent = quizScore;
+  document.getElementById('qAnswered').textContent = quizAnswered;
+  var list = document.getElementById('quizList');
+  list.innerHTML = '';
+  quizData.forEach(function(item, qi){
+    var opts = item.choices.map(function(c, ci){ return { text:c, correct: ci===item.correct }; });
+    shuffleArr(opts);
+    var card = document.createElement('div');
+    card.className = 'q-card';
+    var optsHtml = '';
+    opts.forEach(function(o, oi){
+      optsHtml += '<button class="q-opt" data-correct="'+o.correct+'" data-oi="'+oi+'">'+o.text+'</button>';
+    });
+    card.innerHTML =
+      '<div class="q-num">Question '+(qi+1)+' / '+quizData.length+'</div>'+
+      '<div class="q-text">'+item.q+'</div>'+
+      '<div class="q-opts">'+optsHtml+'</div>';
+    list.appendChild(card);
+
+    var optButtons = card.querySelectorAll('.q-opt');
+    optButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        optButtons.forEach(function(b){ b.disabled = true; });
+        var isCorrect = btn.dataset.correct === 'true';
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        if(!isCorrect){
+          optButtons.forEach(function(b){ if(b.dataset.correct==='true') b.classList.add('correct'); });
+        }
+        quizAnswered++;
+        if(isCorrect) quizScore++;
+        document.getElementById('qScore').textContent = quizScore;
+        document.getElementById('qAnswered').textContent = quizAnswered;
+      });
+    });
+  });
+}
+document.getElementById('qRestart').addEventListener('click', renderQuiz);
+renderQuiz();
+</script>
+</body>
+</html>
